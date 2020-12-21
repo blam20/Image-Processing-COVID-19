@@ -1,0 +1,54 @@
+clc
+clear
+close all
+
+%Image info
+info_healthy = imfinfo('normallunggray.bmp');
+info_covid = imfinfo('covidlunggray.bmp');
+
+%Load Lung Images
+healthy = imread('normallunggray.bmp');
+covid = imread('covidlunggray.bmp');
+
+%Show images
+% figure()
+% imshow(healthy)
+% figure()
+% imshow(covid)
+
+%Rotate lungs
+rotated_healthy = imrotate(healthy,-23,'bilinear','crop');
+%imshow(rotated_healthy)
+% figure()
+rotated_covid = imrotate(covid,15,'bilinear','crop');
+%imshow(rotated_covid)
+
+%Crop each set of left and right lungs
+[crop_healthy_left,rect] = imcrop(rotated_healthy);
+[crop_covid_left,rect] = imcrop(rotated_covid);
+[crop_healthy_right,rect] = imcrop(rotated_healthy);
+[crop_covid_right,rect] = imcrop(rotated_covid);
+% figure()
+% imshow(crop_healthy_left)
+% figure()
+% imshow(crop_covid_left)
+% figure()
+% imshow(crop_healthy_right)
+% figure()
+% imshow(crop_covid_right)
+
+%Create section for each cropped lung
+healthy_left_matrix = crop_healthy_left(100:150,100:150);
+healthy_right_matrix = crop_healthy_right(100:150,100:150);
+covid_left_matrix = crop_covid_left(100:150,100:150);
+covid_right_matrix = crop_covid_right(100:150,100:150);
+
+%Create binary matrix
+left_comparison_matrix = sign(covid_left_matrix-healthy_left_matrix);
+right_comparison_matrix = sign(covid_right_matrix-healthy_right_matrix);
+
+%Count binary 0s and 1s
+numOnes_left_lung = nnz(left_comparison_matrix);
+numZeros_left_lung = nnz(~left_comparison_matrix);
+numOnes_right_lung = nnz(right_comparison_matrix);
+numZeros_right_lung = nnz(~right_comparison_matrix);
